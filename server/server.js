@@ -202,6 +202,50 @@ app.get('/api/status', (req, res) => {
 });
 
 /**
+ * Live Key Verification Endpoint for Groq & Google Gemini
+ */
+app.get('/api/test-keys', async (req, res) => {
+  const results = {
+    groq: { configured: Boolean(process.env.GROQ_API_KEY) },
+    gemini: { configured: Boolean(process.env.GEMINI_API_KEY) }
+  };
+
+  if (process.env.GROQ_API_KEY) {
+    try {
+      const resp = await fetch('https://api.groq.com/openai/v1/models', {
+        headers: { 'Authorization': `Bearer ${process.env.GROQ_API_KEY}` }
+      });
+      results.groq.valid = resp.ok;
+      results.groq.status = resp.status;
+      if (!resp.ok) {
+        const errJson = await resp.json().catch(() => ({}));
+        results.groq.error = errJson.error?.message || `HTTP ${resp.status}`;
+      }
+    } catch (e) {
+      results.groq.valid = false;
+      results.groq.error = e.message;
+    }
+  }
+
+  if (process.env.GEMINI_API_KEY) {
+    try {
+      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${process.env.GEMINI_API_KEY}`);
+      results.gemini.valid = resp.ok;
+      results.gemini.status = resp.status;
+      if (!resp.ok) {
+        const errJson = await resp.json().catch(() => ({}));
+        results.gemini.error = errJson.error?.message || `HTTP ${resp.status}`;
+      }
+    } catch (e) {
+      results.gemini.valid = false;
+      results.gemini.error = e.message;
+    }
+  }
+
+  res.json(results);
+});
+
+/**
  * Get Built-in Sample Videos for instant testing
  */
 app.get('/api/samples', (req, res) => {
