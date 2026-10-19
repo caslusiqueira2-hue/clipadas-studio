@@ -242,6 +242,53 @@ app.get('/api/test-keys', async (req, res) => {
     }
   }
 
+  const ytCookiesRaw = process.env.YOUTUBE_COOKIES || (process.env.YOUTUBE_COOKIES_BASE64 ? Buffer.from(process.env.YOUTUBE_COOKIES_BASE64, 'base64').toString('utf-8') : '');
+  const ytCookieFile = path.join(__dirname, 'yt-cookies.txt');
+  const hasLocalFile = fs.existsSync(ytCookieFile);
+  const os = require('os');
+
+  results.youtube = {
+    configured: Boolean(ytCookiesRaw || hasLocalFile),
+    cookieSize: ytCookiesRaw ? ytCookiesRaw.length : (hasLocalFile ? fs.statSync(ytCookieFile).size : 0),
+    format: ytCookiesRaw.includes('\t') ? 'Netscape (Valid)' : (ytCookiesRaw ? 'Raw String' : 'None')
+  };
+
+  if (results.youtube.configured) {
+    try {
+      const { spawnSync } = require('child_process');
+      const tempCookie = path.join(os.tmpdir(), `test_yt_${Date.now()}.txt`);
+      if (ytCookiesRaw) {
+        fs.writeFileSync(tempCookie, ytCookiesRaw, 'utf-8');
+      }
+      const cookieArg = ytCookiesRaw ? ['--cookies', tempCookie] : ['--cookies', ytCookieFile];
+      const ytdlpInfo = resolveYtDlpBin();
+      const testProc = spawnSync(ytdlpInfo.bin, [
+        ...ytdlpInfo.args,
+        ...cookieArg,
+        '--extractor-args', 'youtube:player_client=tv_downgraded,mweb,web_embedded',
+        '--dump-single-json',
+        '--no-playlist',
+        '--skip-download',
+        'https://www.youtube.com/watch?v=jNQXAC9IVRw'
+      ], { encoding: 'utf-8', timeout: 15000 });
+
+      try { if (fs.existsSync(tempCookie)) fs.unlinkSync(tempCookie); } catch (e) {}
+
+      if (testProc.status === 0 && testProc.stdout) {
+        const parsed = JSON.parse(testProc.stdout);
+        results.youtube.valid = true;
+        results.youtube.testVideo = parsed.title;
+        results.youtube.status = 200;
+      } else {
+        results.youtube.valid = false;
+        results.youtube.error = (testProc.stderr || testProc.stdout || 'Probing failed').slice(0, 160);
+      }
+    } catch (ytErr) {
+      results.youtube.valid = false;
+      results.youtube.error = ytErr.message;
+    }
+  }
+
   res.json(results);
 });
 
