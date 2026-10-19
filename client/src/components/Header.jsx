@@ -30,40 +30,19 @@ export default function Header({ onOpenSettings, status, view = 'ingestion', onN
             userSelect: 'none'
           }}
         >
-          {/* Handcrafted Obsidian Icon Tile */}
-          <div style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '8px',
-            background: 'rgba(255, 255, 255, 0.05)',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
-            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.15)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <Film size={16} color="#f8fafc" strokeWidth={1.75} />
-          </div>
-
+          {/* Official Brand Logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{
-              fontFamily: 'var(--font-heading)',
-              fontSize: '1.05rem',
-              fontWeight: 600,
-              letterSpacing: '-0.3px',
-              color: '#ffffff'
-            }}>
-              Clipadas
-            </span>
-            <span style={{
-              fontFamily: 'var(--font-heading)',
-              fontSize: '1.05rem',
-              fontWeight: 400,
-              color: 'var(--text-muted)'
-            }}>
-              Studio
-            </span>
-            <span className="badge-minimal" style={{ fontSize: '0.68rem', padding: '1px 7px', marginLeft: '2px' }}>
+            <img
+              src="/logo.png"
+              alt="Clipadas Studio"
+              style={{
+                height: '36px',
+                width: 'auto',
+                objectFit: 'contain',
+                filter: 'drop-shadow(0 2px 10px rgba(0,0,0,0.5))'
+              }}
+            />
+            <span className="badge-minimal" style={{ fontSize: '0.68rem', padding: '1px 7px', marginLeft: '4px' }}>
               Edição Estúdio
             </span>
           </div>
