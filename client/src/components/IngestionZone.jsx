@@ -23,13 +23,15 @@ export default function IngestionZone({
 
   const notifyStaticDemo = () => {
     alert(
-      '⚠️ Servidor Backend Necessário para Vídeos Personalizados:\n\n' +
-      'O GitHub Pages fornece apenas hospedagem estática e não pode executar yt-dlp, FFmpeg ou Faster-Whisper.\n\n' +
-      'Como processar seus próprios vídeos:\n' +
-      '1. Execute localmente: No terminal execute "npm run dev" e acesse http://localhost:5173\n' +
-      '2. Ou clique em Configurações e conecte a URL do seu servidor backend.\n\n' +
-      'Para testar o Estúdio de Edição agora mesmo, clique em "Testar Exemplo Demonstrativo" abaixo!'
+      '⚠️ Conecte o Backend do seu Computador:\n\n' +
+      'A Vercel hospeda o visual do Clipadas, mas o processamento de IA (Whisper) e FFmpeg roda no seu computador com Custo R$ 0!\n\n' +
+      'Como conectar seu celular em 2 passos:\n' +
+      '1. No seu PC, execute "start_mobile.bat" (uma janela abrirá com sua URL segura da Cloudflare)\n' +
+      '2. Cole essa URL no campo "URL do Servidor Backend" que abriremos agora nas Configurações da sua tela!'
     );
+    if (onOpenSettings) {
+      setTimeout(() => onOpenSettings(), 100);
+    }
   };
 
   const handleDrag = (e) => {

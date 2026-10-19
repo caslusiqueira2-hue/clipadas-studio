@@ -176,10 +176,9 @@ export default function App() {
       }
       if (res.status === 405 || text.includes('405 Not Allowed')) {
         throw new Error(
-          'O GitHub Pages é uma hospedagem estática e não pode executar FFmpeg / yt-dlp.\n\n' +
-          'Para processar seus próprios vídeos:\n' +
-          '1. Execute localmente com "start.bat" ou "npm run dev"\n' +
-          '2. Ou clique em "Configurações" e conecte a URL do seu servidor Backend.'
+          'A Vercel é uma hospedagem estática e requer o backend do seu PC para processar vídeos.\n\n' +
+          '1. No seu PC, execute "start_mobile.bat"\n' +
+          '2. Clique em Configurações (ícone de engrenagem) e cole a URL do túnel HTTPS (ex: https://...trycloudflare.com)'
         );
       }
       throw new Error(`Erro do servidor (${res.status}): ${text.slice(0, 160)}`);
