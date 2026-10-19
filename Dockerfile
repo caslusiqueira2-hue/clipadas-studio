@@ -39,9 +39,10 @@ RUN npm --prefix client run build
 RUN mkdir -p server/uploads/previews server/exports server/samples server/assets/sfx \
     && chmod -R 777 server/uploads server/exports server/samples
 
-# Default port (7860 is default for Hugging Face Spaces; can be overridden via PORT env var)
-ENV PORT=7860
+# Default port (10000 is default for Render; can be overridden via PORT env var)
+ENV PORT=10000
 ENV NODE_ENV=production
+EXPOSE 10000
 EXPOSE 7860
 
 CMD ["node", "server/server.js"]
