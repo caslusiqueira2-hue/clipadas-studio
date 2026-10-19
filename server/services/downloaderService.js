@@ -83,9 +83,9 @@ function downloadUrl(url, outputDir, onProgress = null, customCookies = null) {
     }
 
     const hasCookies = cookieArgs[0] === '--cookies';
-    // When no cookies are supplied, VisionOS player client bypasses datacenter IP bot detection
-    const extractorArgs = (isYouTube && !hasCookies)
-      ? ['--extractor-args', 'youtube:player_client=visionos']
+    // Fallback chain for cloud datacenter anti-bot bypass
+    const extractorArgs = isYouTube
+      ? ['--extractor-args', 'youtube:player_client=tv_downgraded,mweb,web_embedded']
       : [];
 
     const ffmpegArgs = (ffmpegStaticPath && fs.existsSync(ffmpegStaticPath))
@@ -98,7 +98,7 @@ function downloadUrl(url, outputDir, onProgress = null, customCookies = null) {
       ...extractorArgs,
       ...ffmpegArgs,
       '--js-runtimes', 'node',
-      '-N', '8',                        // 8 concurrent connection fragments for fast downloads
+      '-N', '4',                        // 4 fragments to avoid datacenter burst rate-limiting
       '--buffer-size', '16M',           // 16MB download buffer
       '--http-chunk-size', '10M',       // 10MB chunk size
       '-o', outputTemplate,
