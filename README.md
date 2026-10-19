@@ -1,14 +1,14 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/100%25-FREE%20%26%20OPEN--SOURCE-00C853?style=for-the-badge&logo=open-source-initiative&logoColor=white" alt="Free & Open Source" />
-  <img src="https://img.shields.io/badge/No%20API%20Keys%20Required-local%20AI-7C4DFF?style=for-the-badge&logo=robot&logoColor=white" alt="Local AI" />
-  <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="MIT License" />
+  <img src="https://img.shields.io/badge/100%25-GRATUITO%20%26%20OPEN--SOURCE-00C853?style=for-the-badge&logo=open-source-initiative&logoColor=white" alt="Gratuito & Open Source" />
+  <img src="https://img.shields.io/badge/IA%20Local-Sem%20Chaves%20Obrigat%C3%B3rias-7C4DFF?style=for-the-badge&logo=robot&logoColor=white" alt="IA Local" />
+  <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcaslusiqueira2-hue%2Fclipadas-studio"><img src="https://vercel.com/button" alt="Deploy with Vercel" /></a>
 </p>
 
-<h1 align="center">🎬 OpenClip Studio</h1>
-<h3 align="center">Free & Unlimited AI Video Repurposing — Your Open-Source Opus Clip Alternative</h3>
+<h1 align="center">🎬 Clipadas Studio</h1>
+<h3 align="center">Plataforma de Cortes Virais & Legendas Dinâmicas com IA (Opus Clip Alternative)</h3>
 
 <p align="center">
-  Turn any long-form video (podcasts, streams, interviews, debates) into <strong>viral 9:16 vertical shorts</strong> with AI-powered clipping, auto-framing, kinetic captions, and one-click export — <strong>100% free, forever, no watermarks, no limits.</strong>
+  Transforme vídeos longos em <strong>cortes verticais 9:16 virais</strong> para TikTok, YouTube Shorts e Instagram Reels com IA, legendas cinéticas (estilo Hormozi/MrBeast) e exportação em 1080×1920 — <strong>100% gratuito, sem limites e sem marcas d'água.</strong>
 </p>
 
 ---
