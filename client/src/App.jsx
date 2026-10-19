@@ -61,7 +61,9 @@ export default function App() {
       }
     } catch (e) {}
 
-    const envBackend = (import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+    const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    const defaultCloudBackend = isLocal ? '' : 'https://clipadas-studio-backend.onrender.com';
+    const envBackend = (import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || defaultCloudBackend).replace(/\/$/, '');
 
     return {
       geminiApiKey: localStorage.getItem('clipadas_gemini_key') || localStorage.getItem('openclip_gemini_key') || '',
@@ -73,7 +75,9 @@ export default function App() {
   });
 
   const getApiUrl = (endpoint) => {
-    const envBackend = (import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+    const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    const defaultCloudBackend = isLocal ? '' : 'https://clipadas-studio-backend.onrender.com';
+    const envBackend = (import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || defaultCloudBackend).replace(/\/$/, '');
     const customBackend = apiKeys.backendUrl || localStorage.getItem('clipadas_backend_url') || localStorage.getItem('openclip_backend_url') || envBackend || '';
     if (customBackend) {
       return `${customBackend.replace(/\/$/, '')}${endpoint}`;
@@ -235,9 +239,13 @@ export default function App() {
       setProcessingText('Finalizando legendas cinéticas e clipes virais do estúdio...');
 
       setTimeout(() => {
+        const streamUrl = (videoUrl && videoUrl.startsWith('http'))
+          ? videoUrl
+          : getApiUrl(videoUrl || `/api/stream?path=${encodeURIComponent(filePath)}`);
+
         setActiveVideo({
           filePath,
-          videoUrl: videoUrl || `/api/stream?path=${encodeURIComponent(filePath)}`,
+          videoUrl: streamUrl,
           meta: data.meta
         });
         setClips(data.clips || []);
@@ -551,6 +559,7 @@ export default function App() {
           isRendering={isRendering}
           exportResult={exportResult}
           error={exportError}
+          backendUrl={apiKeys.backendUrl || getApiUrl('')}
           onClose={() => setIsExportModalOpen(false)}
         />
       )}

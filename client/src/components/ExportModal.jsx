@@ -2,7 +2,12 @@ import React, { useEffect } from 'react';
 import { Download, CheckCircle, Loader2, X, Film, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-export default function ExportModal({ isRendering, exportResult, error, onClose }) {
+export default function ExportModal({ isRendering, exportResult, error, backendUrl, onClose }) {
+  const rawDownloadUrl = exportResult?.downloadUrl || '';
+  const finalDownloadUrl = (rawDownloadUrl && rawDownloadUrl.startsWith('http'))
+    ? rawDownloadUrl
+    : (backendUrl ? `${backendUrl.replace(/\/$/, '')}${rawDownloadUrl}` : rawDownloadUrl);
+
   useEffect(() => {
     if (exportResult && exportResult.success) {
       confetti({
@@ -145,7 +150,7 @@ export default function ExportModal({ isRendering, exportResult, error, onClose 
               backgroundColor: '#000000'
             }}>
               <video
-                src={exportResult.downloadUrl}
+                src={finalDownloadUrl}
                 controls
                 autoPlay
                 playsInline
@@ -155,7 +160,7 @@ export default function ExportModal({ isRendering, exportResult, error, onClose 
 
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
               <a
-                href={exportResult.downloadUrl}
+                href={finalDownloadUrl}
                 download={exportResult.fileName}
                 className="btn-primary"
                 style={{
