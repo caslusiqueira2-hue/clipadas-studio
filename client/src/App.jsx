@@ -61,17 +61,20 @@ export default function App() {
       }
     } catch (e) {}
 
+    const envBackend = (import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+
     return {
       geminiApiKey: localStorage.getItem('clipadas_gemini_key') || localStorage.getItem('openclip_gemini_key') || '',
       groqApiKey: localStorage.getItem('clipadas_groq_key') || localStorage.getItem('openclip_groq_key') || '',
       githubToken: localStorage.getItem('clipadas_github_token') || localStorage.getItem('openclip_github_token') || '',
-      backendUrl: urlBackend || localStorage.getItem('clipadas_backend_url') || localStorage.getItem('openclip_backend_url') || '',
+      backendUrl: urlBackend || localStorage.getItem('clipadas_backend_url') || localStorage.getItem('openclip_backend_url') || envBackend || '',
       ytCookies: localStorage.getItem('clipadas_yt_cookies') || localStorage.getItem('openclip_yt_cookies') || ''
     };
   });
 
   const getApiUrl = (endpoint) => {
-    const customBackend = apiKeys.backendUrl || localStorage.getItem('clipadas_backend_url') || localStorage.getItem('openclip_backend_url') || '';
+    const envBackend = (import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+    const customBackend = apiKeys.backendUrl || localStorage.getItem('clipadas_backend_url') || localStorage.getItem('openclip_backend_url') || envBackend || '';
     if (customBackend) {
       return `${customBackend.replace(/\/$/, '')}${endpoint}`;
     }
