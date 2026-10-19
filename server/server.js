@@ -265,7 +265,6 @@ app.get('/api/test-keys', async (req, res) => {
       const testProc = spawnSync(ytdlpInfo.bin, [
         ...ytdlpInfo.args,
         ...cookieArg,
-        '--extractor-args', 'youtube:player_client=tv_downgraded,mweb,web_embedded',
         '--dump-single-json',
         '--no-playlist',
         '--skip-download',

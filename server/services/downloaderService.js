@@ -83,8 +83,8 @@ function downloadUrl(url, outputDir, onProgress = null, customCookies = null) {
     }
 
     const hasCookies = cookieArgs[0] === '--cookies';
-    // Fallback chain for cloud datacenter anti-bot bypass
-    const extractorArgs = isYouTube
+    // Fallback chain for cloud datacenter anti-bot bypass when no cookies are provided
+    const extractorArgs = (isYouTube && !hasCookies)
       ? ['--extractor-args', 'youtube:player_client=tv_downgraded,mweb,web_embedded']
       : [];
 
