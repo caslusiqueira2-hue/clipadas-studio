@@ -1,0 +1,10 @@
+node_modules
+client/node_modules
+server/uploads/*
+!server/uploads/previews
+server/exports/*
+client/dist
+.git
+.vscode
+.env
+.env.local
