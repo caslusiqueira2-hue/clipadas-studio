@@ -33,22 +33,30 @@ def get_yunet_model_path():
     return None
 
 def resolve_ffmpeg_bin():
-    if os.environ.get('FFMPEG_PATH') and os.path.exists(os.environ.get('FFMPEG_PATH')):
-        return os.environ.get('FFMPEG_PATH')
-    # Try finding ffmpeg-static from project root or server dir
+    if os.environ.get('FFMPEG_PATH'):
+        p = os.environ.get('FFMPEG_PATH')
+        try:
+            if subprocess.run([p, '-version'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0:
+                return p
+        except Exception:
+            pass
+
     script_dir = os.path.dirname(os.path.abspath(__file__))
     candidates = [
+        'ffmpeg',
+        '/usr/bin/ffmpeg',
+        '/usr/local/bin/ffmpeg',
         os.path.join(script_dir, '..', '..', 'node_modules', 'ffmpeg-static', 'ffmpeg.exe'),
         os.path.join(script_dir, '..', 'node_modules', 'ffmpeg-static', 'ffmpeg.exe'),
         os.path.join(script_dir, '..', '..', 'node_modules', 'ffmpeg-static', 'ffmpeg'),
         os.path.join(script_dir, '..', 'node_modules', 'ffmpeg-static', 'ffmpeg'),
-        '/opt/render/project/src/node_modules/ffmpeg-static/ffmpeg',
-        '/usr/local/bin/ffmpeg',
-        '/usr/bin/ffmpeg'
     ]
     for c in candidates:
-        if os.path.exists(c):
-            return c
+        try:
+            if subprocess.run([c, '-version'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0:
+                return c
+        except Exception:
+            pass
     return 'ffmpeg'
 
 def track_subject(video_path, start_time, duration, sample_fps=4):

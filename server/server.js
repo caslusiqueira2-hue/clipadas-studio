@@ -23,7 +23,9 @@ const {
   trackSubject,
   extractAudio,
   generateThumbnail,
-  renderShortClip
+  renderShortClip,
+  FFMPEG_BIN,
+  FFPROBE_BIN
 } = require('./services/ffmpegService');
 const { transcribeAudio } = require('./services/transcribeService');
 const { discoverViralClips, findBestTeaserHook } = require('./services/viralityService');
@@ -195,6 +197,8 @@ app.get('/api/status', (req, res) => {
     hasGithubToken: Boolean(ghTok),
     githubToken: ghTok,
     ffmpegReady: true,
+    ffmpegBin: FFMPEG_BIN,
+    ffprobeBin: FFPROBE_BIN,
     ytdlpReady: Boolean(ytdlpResolved),
     ytdlpPath: ytdlpResolved,
     pythonCv2Status

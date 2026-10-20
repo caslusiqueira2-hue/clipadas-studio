@@ -1,7 +1,46 @@
-const { spawn, exec } = require('child_process');
+const { spawn, exec, spawnSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const { getEmojiPngPath } = require('./emojiService');
+
+function resolveBinary(name, staticCandidate) {
+  // If explicitly specified in environment, check if valid
+  const envVal = process.env[name.toUpperCase() + '_PATH'];
+  if (envVal) {
+    try {
+      const res = spawnSync(envVal, ['-version'], { timeout: 1500, stdio: 'ignore' });
+      if (res.status === 0 || (!res.error && res.status !== null)) {
+        return envVal;
+      }
+    } catch (e) {}
+  }
+
+  // 1. Prefer native system binary (/usr/bin/ffprobe or in system PATH)
+  const systemCandidates = [name, `/usr/bin/${name}`, `/usr/local/bin/${name}`];
+  for (const cand of systemCandidates) {
+    try {
+      const res = spawnSync(cand, ['-version'], { timeout: 1500, stdio: 'ignore' });
+      if (res.status === 0 || (!res.error && res.status !== null)) {
+        return cand;
+      }
+    } catch (e) {}
+  }
+
+  // 2. Fallback to node_modules static binary (ensuring execute permissions)
+  if (staticCandidate && fs.existsSync(staticCandidate)) {
+    try {
+      if (process.platform !== 'win32') {
+        try { fs.chmodSync(staticCandidate, 0o755); } catch (e) {}
+      }
+      const res = spawnSync(staticCandidate, ['-version'], { timeout: 1500, stdio: 'ignore' });
+      if (res.status === 0 || (!res.error && res.status !== null)) {
+        return staticCandidate;
+      }
+    } catch (e) {}
+  }
+
+  return name;
+}
 
 let staticFfmpeg = null;
 try {
@@ -13,24 +52,36 @@ try {
   staticFfprobe = require('@ffprobe-installer/ffprobe').path;
 } catch (e) {}
 
-const FFMPEG_BIN = process.env.FFMPEG_PATH || (staticFfmpeg && fs.existsSync(staticFfmpeg) ? staticFfmpeg : 'ffmpeg');
-const FFPROBE_BIN = process.env.FFPROBE_PATH || (staticFfprobe && fs.existsSync(staticFfprobe) ? staticFfprobe : 'ffprobe');
-
+const FFMPEG_BIN = resolveBinary('ffmpeg', staticFfmpeg);
+const FFPROBE_BIN = resolveBinary('ffprobe', staticFfprobe);
 
 /**
  * Probes video file to get duration, width, height, fps
  */
 function probeVideo(videoPath) {
   return new Promise((resolve, reject) => {
-    const cmd = `"${FFPROBE_BIN}" -v quiet -print_format json -show_format -show_streams "${videoPath}"`;
-    exec(cmd, (error, stdout, stderr) => {
-      if (error) {
-        return reject(new Error(`FFprobe failed: ${stderr || error.message}`));
+    const proc = spawn(FFPROBE_BIN, [
+      '-v', 'quiet',
+      '-print_format', 'json',
+      '-show_format',
+      '-show_streams',
+      videoPath
+    ]);
+
+    let stdout = '';
+    let stderr = '';
+    proc.stdout.on('data', d => stdout += d.toString());
+    proc.stderr.on('data', d => stderr += d.toString());
+
+    proc.on('error', err => reject(new Error(`FFprobe failed: ${err.message}`)));
+    proc.on('close', code => {
+      if (code !== 0) {
+        return reject(new Error(`FFprobe failed with code ${code}: ${stderr || 'Unknown error'}`));
       }
       try {
         const info = JSON.parse(stdout);
-        const videoStream = info.streams.find(s => s.codec_type === 'video') || {};
-        const audioStream = info.streams.find(s => s.codec_type === 'audio') || {};
+        const videoStream = info.streams ? info.streams.find(s => s.codec_type === 'video') || {} : {};
+        const audioStream = info.streams ? info.streams.find(s => s.codec_type === 'audio') || {} : {};
 
         let fps = 30;
         if (videoStream.r_frame_rate) {
@@ -40,7 +91,7 @@ function probeVideo(videoPath) {
           }
         }
 
-        const duration = parseFloat(info.format.duration || videoStream.duration || 0);
+        const duration = parseFloat((info.format && info.format.duration) || videoStream.duration || 0);
 
         resolve({
           duration,
@@ -50,7 +101,7 @@ function probeVideo(videoPath) {
           videoCodec: videoStream.codec_name,
           audioCodec: audioStream.codec_name,
           format_name: info.format ? info.format.format_name : '',
-          sizeBytes: parseInt(info.format.size || 0)
+          sizeBytes: parseInt((info.format && info.format.size) || 0)
         });
       } catch (e) {
         reject(new Error(`Failed to parse ffprobe output: ${e.message}`));
@@ -600,5 +651,7 @@ module.exports = {
   trackSubject,
   extractAudio,
   generateThumbnail,
-  renderShortClip
+  renderShortClip,
+  FFMPEG_BIN,
+  FFPROBE_BIN
 };

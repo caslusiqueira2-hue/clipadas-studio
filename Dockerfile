@@ -44,9 +44,15 @@ RUN npm --prefix client run build
 RUN mkdir -p server/uploads/previews server/exports server/samples server/assets/sfx \
     && chmod -R 777 server/uploads server/exports server/samples
 
-# Default port (10000 is default for Render; can be overridden via PORT env var)
+# Default port and binary paths (10000 is default for Render; can be overridden via PORT env var)
 ENV PORT=10000
 ENV NODE_ENV=production
+ENV FFMPEG_PATH=/usr/bin/ffmpeg
+ENV FFPROBE_PATH=/usr/bin/ffprobe
+
+# Ensure execute permissions on binary wrappers if present
+RUN chmod -R 755 /app/node_modules/@ffprobe-installer /app/node_modules/ffmpeg-static 2>/dev/null || true
+
 EXPOSE 10000
 
 CMD ["node", "server/server.js"]

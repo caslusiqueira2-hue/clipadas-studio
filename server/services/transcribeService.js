@@ -3,12 +3,7 @@ const path = require('path');
 const { spawn, spawnSync, execSync } = require('child_process');
 const https = require('https');
 const { parseVttToWords, enrichWordWithEmoji } = require('./subtitleService');
-
-let staticFfmpeg = null;
-try {
-  staticFfmpeg = require('ffmpeg-static');
-} catch (e) {}
-const FFMPEG_BIN = process.env.FFMPEG_PATH || (staticFfmpeg && fs.existsSync(staticFfmpeg) ? staticFfmpeg : 'ffmpeg');
+const { FFMPEG_BIN } = require('./ffmpegService');
 
 const TRANSCRIBE_SCRIPT = path.join(__dirname, 'transcribe_local.py');
 
